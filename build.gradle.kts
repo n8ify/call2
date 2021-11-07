@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("org.springframework.boot") version "2.5.6"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
+    id("com.google.cloud.tools.jib") version "3.1.4"
     kotlin("jvm") version "1.5.31"
     kotlin("plugin.spring") version "1.5.31"
     kotlin("plugin.jpa") version "1.5.31"
@@ -52,6 +53,18 @@ tasks.bootBuildImage {
             password = System.getenv("PASSWORD")
             url = System.getenv("URL")
             email = System.getenv("EMAIL")
+        }
+    }
+}
+
+tasks.jib {
+    jib {
+        to {
+            image = "registry.hub.docker.com/nata8ify/${project.name}"
+            auth {
+                username = System.getenv("USERNAME")
+                password = System.getenv("PASSWORD")
+            }
         }
     }
 }
