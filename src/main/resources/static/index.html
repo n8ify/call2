@@ -5,6 +5,7 @@
     <title>Service Registration</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="icon" href="logo.ico">
 </head>
 <body class="p-16"
       style="background-image: url('bg_mask.png'), url('bg.jpg'); background-repeat: repeat, no-repeat">
@@ -49,7 +50,7 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-sm-12">
-                    <table class="table table-striped table-hover">
+                    <table class="table table-hover">
                         <thead>
                         <tr>
                             <th>#</th>
@@ -61,7 +62,19 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr v-for="(service, index) in services" :key="index">
+                        <tr v-if="services.length === 0" >
+                            <td colspan="6" class="my-6">
+                                <div class="m-auto w-25" style="color: lightgrey">
+                                    <svg style="zoom: 2" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-emoji-neutral" viewBox="0 0 16 16">
+                                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                        <path d="M4 10.5a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 0-1h-7a.5.5 0 0 0-.5.5zm3-4C7 5.672 6.552 5 6 5s-1 .672-1 1.5S5.448 8 6 8s1-.672 1-1.5zm4 0c0-.828-.448-1.5-1-1.5s-1 .672-1 1.5S9.448 8 10 8s1-.672 1-1.5z"/>
+                                    </svg>
+                                    <span class="ml-3">Service is Empty</span>
+                                </div>
+
+                            </td>
+                        </tr>
+                        <tr v-else v-for="(service, index) in services" :key="index" >
                             <td>{{ index + 1 }}</td>
                             <td>{{ service.title }}</td>
                             <td>{{ service.description }}</td>

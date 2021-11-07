@@ -42,3 +42,16 @@ tasks.withType<KotlinCompile> {
 tasks.withType<Test> {
     useJUnitPlatform()
 }
+
+tasks.bootBuildImage {
+    imageName = "nata8ify/${project.name}"
+    isPublish = true
+    docker {
+        publishRegistry {
+            username = System.getenv("USERNAME")
+            password = System.getenv("PASSWORD")
+            url = System.getenv("URL")
+            email = System.getenv("EMAIL")
+        }
+    }
+}
