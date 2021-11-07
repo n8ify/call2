@@ -10,18 +10,15 @@ class CallController {
     lateinit var callService: CallService
 
     @PostMapping("/register")
-    fun register(@RequestBody serviceInfo: ServiceInfo) : Boolean {
-        TODO()
-    }
+    fun register(@RequestBody serviceInfo: ServiceInfo) : Boolean = callService.register(serviceInfo)
+
+    @PostMapping("/unregister/{id}")
+    fun unregister(@PathVariable id: String) : Boolean = callService.unregister(id)
 
     @GetMapping("/services")
-    fun services() : List<ServiceInfo> {
-        TODO()
-    }
+    fun services() : List<ServiceInfo> = callService.findAll()
 
-    @GetMapping("/check/{id}")
-    fun check(@PathVariable id: String) {
-
-    }
+    @GetMapping("/check")
+    fun check(@RequestBody serviceInfo: ServiceInfo) : StatusInfo = callService.checkServiceStatus(serviceInfo)
 
 }

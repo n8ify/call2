@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Service Registration</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+<body class="p-16"
+      style="background-image: url('bg_mask.png'), url('bg.jpg'); background-repeat: repeat, no-repeat">
+<div class="container-fluid p-5"  id="app">
+    <div class="card p-1 mb-3">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-sm-6 input-group mb-3">
+                    <input type="text" class="form-control" id="title" v-model="regisForm.title" placeholder="Title"
+                           aria-label="Title" aria-describedby="basic-addon1">
+                </div>
+
+                <div class="col-sm-6 input-group mb-3">
+                    <input type="text" class="form-control" id="description" v-model="regisForm.description"
+                           placeholder="Description" aria-label="Description" aria-describedby="basic-addon1">
+                </div>
+
+                <div class="col-sm-6 input-group mb-3">
+                    <input type="text" class="form-control" id="url" v-model="regisForm.url" placeholder="URL"
+                           aria-label="URL"
+                           aria-describedby="basic-addon1">
+                </div>
+
+                <div class="col-sm-6 input-group mb-3">
+                    <input type="text" class="form-control" id="thumbnailUrl" v-model="regisForm.thumbnailUrl"
+                           placeholder="Thumbnail URL" aria-label="Thumbnail URL" aria-describedby="basic-addon1">
+                </div>
+
+                <div class="col-sm-12 input-group">
+                    <button class="btn btn-primary btn-lg btn-block" id="submit-registration" @click="register">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                             class="bi bi-plus-circle" viewBox="0 0 16 16">
+                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-sm-12">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Title</th>
+                            <th>Description</th>
+                            <th>Url</th>
+                            <th>Thumbnail Url</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr v-for="(service, index) in services" :key="index">
+                            <td>{{ index + 1 }}</td>
+                            <td>{{ service.title }}</td>
+                            <td>{{ service.description }}</td>
+                            <td>{{ service.url }}</td>
+                            <td>{{ service.thumbnailUrl }}</td>
+                            <td>
+                                <button class="btn btn-danger btn-sm" @click="unregister(service)">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle-fill" viewBox="0 0 16 16">
+                                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/>
+                                    </svg>
+                                </button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script>
+<script>
+    let app = new Vue({
+        el: '#app',
+        data: {
+            regisForm: {
+                title: null,
+                description: null,
+                url: null,
+                thumbnailUrl: null
+            },
+            services: []
+        },
+        methods: {
+            register: function () {
+                let newService = {
+                    id: Date.now().toString(36) + Math.random().toString(36).substring(2),
+                    title: this.regisForm.title,
+                    description: this.regisForm.description,
+                    url: this.regisForm.url,
+                    thumbnailUrl: this.regisForm.thumbnailUrl
+                }
+                let request = {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(newService)
+                }
+                fetch('/register', request)
+                    .then((response) => response.json())
+                    .then((response) => {
+                        console.log(response)
+                        if (response === true) {
+                            this.services.push(newService)
+                        } else {
+                            console.error(response)
+                        }
+                    })
+                    .catch(err => console.error(err))
+            },
+            unregister: function (service) {
+                const request = {
+                    method: "POST"
+                }
+                fetch('/unregister/' + service.id, request)
+                    .then((response) => response.json())
+                    .then((response) => {
+                        console.log(response === true)
+                        if (response) {
+                            this.$set(this.services, this.services.splice(this.services.indexOf(service), 1))
+                        } else {
+                            console.error(response)
+                        }
+                    })
+                    .catch(err => console.error(err))
+            }
+        },
+        mounted: function () {
+            fetch('/services')
+                .then((response) => response.json())
+                .then((response) => {
+                    this.services = response
+                })
+                .catch(err => console.error(err))
+        }
+    })
+</script>
+</body>
+</html>
