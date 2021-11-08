@@ -59,6 +59,9 @@ tasks.bootBuildImage {
 
 tasks.jib {
     jib {
+        container {
+            ports = listOf("8080")
+        }
         to {
             image = "registry.hub.docker.com/nata8ify/${project.name}"
             auth {

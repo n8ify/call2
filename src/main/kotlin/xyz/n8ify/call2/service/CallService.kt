@@ -1,4 +1,4 @@
-package xyz.n8ify.call2
+package xyz.n8ify.call2.service
 
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -6,6 +6,12 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
+import xyz.n8ify.call2.repository.ServiceRepository
+import xyz.n8ify.call2.model.StatusInfo
+import xyz.n8ify.call2.model.rest.request.HealthCheckRequest
+import xyz.n8ify.call2.model.rest.request.RegisterServiceRequest
+import xyz.n8ify.call2.model.rest.response.BaseResponse
+import xyz.n8ify.call2.repository.entity.ServiceEntity
 import java.text.DecimalFormat
 import javax.persistence.EntityManager
 
@@ -16,43 +22,43 @@ class CallService {
     private val rest = RestTemplate()
 
     @Autowired
-    lateinit var repository: CallServiceRepository
+    lateinit var repository: ServiceRepository
 
     @Autowired
     lateinit var entityManager: EntityManager
 
-    fun register(serviceInfo: ServiceInfo) : Boolean {
+    fun register(request: RegisterServiceRequest): BaseResponse<ServiceEntity> {
         return try {
-            repository.save(serviceInfo)
-            logger.error("Register Success!", serviceInfo)
-            true
-        } catch (e: Exception) {
+            val result = repository.saveAndFlush(request.toServiceEntity())
+            logger.error("Register Success!", result)
+            BaseResponse(true, result)
+        } catch (e : Exception) {
             logger.error("Register error", e)
-            false
+            BaseResponse(false, null)
         }
     }
 
-    fun unregister(id: String) : Boolean {
+    fun unregister(id: String): BaseResponse<Unit> {
         return try {
             repository.deleteById(id)
             logger.error("Unregister Success!", id)
-            true
+            BaseResponse(true, null)
         } catch (e: Exception) {
             logger.error("Unregister error", e)
-            false
+            BaseResponse(false, null)
         }
     }
 
-    fun findAll() : List<ServiceInfo> = repository.findAll()
+    fun findAll(): List<ServiceEntity> = repository.findAll()
 
-    fun checkServiceStatus(serviceInfo: ServiceInfo): StatusInfo {
+    fun checkServiceStatus(request: HealthCheckRequest): StatusInfo {
         val start = System.currentTimeMillis()
-        val response = rest.exchange(serviceInfo.url, HttpMethod.GET, null, String::class.java)
+        val response = rest.exchange(request.url, HttpMethod.GET, null, String::class.java)
         val end = System.currentTimeMillis() - start
         val formattedTimeUsage = DecimalFormat("#.00").format(end)
 
         val ok = response.statusCode == HttpStatus.OK
-        val healthy = when  {
+        val healthy = when {
             end < 2000 -> StatusInfo.Healthy
             end < 3000 -> StatusInfo.Fine
             else -> StatusInfo.Unhealthy
