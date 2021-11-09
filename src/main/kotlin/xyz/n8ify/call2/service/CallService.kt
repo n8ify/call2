@@ -32,7 +32,7 @@ class CallService {
             val result = repository.saveAndFlush(request.toServiceEntity())
             logger.error("Register Success!", result)
             BaseResponse(true, result)
-        } catch (e : Exception) {
+        } catch (e: Exception) {
             logger.error("Register error", e)
             BaseResponse(false, null)
         }
@@ -49,27 +49,37 @@ class CallService {
         }
     }
 
-    fun findAll(): List<ServiceEntity> = repository.findAll()
+    fun findAll() = try {
+        BaseResponse<List<ServiceEntity>>(true, repository.findAll())
+    } catch (e: Exception) {
+        logger.error("Find all failed", e)
+        BaseResponse<List<ServiceEntity>>(false, null)
+    }
 
-    fun checkServiceStatus(request: HealthCheckRequest): StatusInfo {
-        val start = System.currentTimeMillis()
-        val response = rest.exchange(request.url, HttpMethod.GET, null, String::class.java)
-        val end = System.currentTimeMillis() - start
-        val formattedTimeUsage = DecimalFormat("#.00").format(end)
+    fun checkServiceStatus(request: HealthCheckRequest): BaseResponse<StatusInfo> {
+        return try {
+            val start = System.currentTimeMillis()
+            val response = rest.exchange(request.url, HttpMethod.GET, null, String::class.java)
+            val end = System.currentTimeMillis() - start
+            val formattedTimeUsage = DecimalFormat("#.00").format(end)
 
-        val ok = response.statusCode == HttpStatus.OK
-        val healthy = when {
-            end < 2000 -> StatusInfo.Healthy
-            end < 3000 -> StatusInfo.Fine
-            else -> StatusInfo.Unhealthy
+            val ok = response.statusCode == HttpStatus.OK
+            val healthy = when {
+                end < 2000 -> StatusInfo.Healthy
+                end < 3000 -> StatusInfo.Fine
+                else -> StatusInfo.Unhealthy
+            }
+            val status = "$healthy : $formattedTimeUsage ms"
+            BaseResponse<StatusInfo>(true, StatusInfo(
+                ok = ok,
+                healthy = healthy,
+                status = status,
+                responseMs = end
+            ))
+        } catch (e: Exception) {
+            logger.error("Health checking for ${request.url} failed", e)
+            BaseResponse<StatusInfo>(false, null)
         }
-        val status = "$healthy : $formattedTimeUsage ms"
-        return StatusInfo(
-            ok = ok,
-            healthy = healthy,
-            status = status,
-            responseMs = end
-        )
     }
 
 }
