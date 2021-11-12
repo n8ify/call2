@@ -32,8 +32,8 @@ class CallController {
     }
 
     @GetMapping("/groups")
-    fun serviceGroupes() : BaseResponse<List<ServiceGroup>> {
-        return BaseResponse(true, ServiceGroup.values().map { it })
+    fun serviceGroups() : BaseResponse<List<ServiceGroup.Data>> {
+        return BaseResponse(true, ServiceGroup.values().map { ServiceGroup.Data(it.id, it.title) })
     }
 
     @GetMapping("/check")

@@ -30,7 +30,7 @@ class CallService {
     fun register(request: RegisterServiceRequest): BaseResponse<ServiceEntity> {
         return try {
             val result = repository.saveAndFlush(request.toServiceEntity())
-            logger.error("Register Success!", result)
+            logger.info("Register Success!", result)
             BaseResponse(true, result)
         } catch (e: Exception) {
             logger.error("Register error", e)
@@ -41,7 +41,7 @@ class CallService {
     fun unregister(id: String): BaseResponse<Unit> {
         return try {
             repository.deleteById(id)
-            logger.error("Unregister Success!", id)
+            logger.info("Unregister Success!", id)
             BaseResponse(true, null)
         } catch (e: Exception) {
             logger.error("Unregister error", e)

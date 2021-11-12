@@ -9,7 +9,8 @@ data class RegisterServiceRequest(
     val title: String,
     val description: String? = null,
     val url: String,
-    val thumbnailUrl: String? = null
+    val thumbnail: String? = null,
+    val isLink: Boolean
 ) {
     fun toServiceEntity(): ServiceEntity = ServiceEntity(
         id,
@@ -17,6 +18,7 @@ data class RegisterServiceRequest(
         title,
         description,
         url,
-        thumbnailUrl
+        thumbnail,
+        isLink
     )
 }
