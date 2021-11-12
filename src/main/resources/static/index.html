@@ -32,7 +32,7 @@
                 <div class="col-sm-4 input-group mb-3">
                     <select class="form-control" aria-label="Group Id" id="groupId" v-model="regisForm.groupId">
                         <option selected disabled value="0">Please Select Group...</option>
-                        <option v-for="(group, index) in groups" :key="index" >{{ group.title }}</option>
+                        <option v-for="(group, index) in groups" :key="index" :value="group.id" >{{ group.title }}</option>
                     </select>
                 </div>
 
@@ -50,9 +50,9 @@
                            placeholder="Thumbnail" aria-label="Thumbnail" aria-describedby="basic-addon1" @change="readFile($event)">
                 </div>
 
-<!--                <div class="col-sm-6 input-group mb-3" v-if="regisForm.thumbnail !== null" >-->
-<!--                    <img :src="regisForm.thumbnail" class="img img-thumbnail" height="200px"/>-->
-<!--                </div>-->
+                <div class="col-sm-6 input-group mb-3" v-if="thumbnailContent !== null" >
+                    <img :src="thumbnailContent" class="img img-thumbnail" style="max-width: 200px"/>
+                </div>
 
                 <div class="col-sm-12 input-group">
                     <button class="btn btn-primary btn-lg btn-block" id="submit-registration" @click="register">
@@ -90,7 +90,7 @@
 
                             </td>
                         </tr>
-                        <tr v-else v-for="(service, index) in services" :key="index" >
+                        <tr v-else v-for="(service, index) in services" :key="index" class="">
                             <td>{{ index + 1 }}</td>
                             <td>{{ service.title }}</td>
                             <td>{{ service.description }}</td>
