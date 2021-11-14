@@ -1,9 +1,9 @@
 package xyz.n8ify.call2.service
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.HttpMethod
-import org.springframework.http.HttpStatus
+import org.springframework.http.*
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
 import xyz.n8ify.call2.repository.ServiceRepository
@@ -12,8 +12,14 @@ import xyz.n8ify.call2.model.rest.request.HealthCheckRequest
 import xyz.n8ify.call2.model.rest.request.RegisterServiceRequest
 import xyz.n8ify.call2.model.rest.response.BaseResponse
 import xyz.n8ify.call2.repository.entity.ServiceEntity
+import java.text.DateFormat
 import java.text.DecimalFormat
+import java.text.SimpleDateFormat
+import java.time.Instant
+import java.util.*
 import javax.persistence.EntityManager
+import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletResponse
 
 @Service
 class CallService {
@@ -81,5 +87,18 @@ class CallService {
             BaseResponse<StatusInfo>(false, null)
         }
     }
+
+    fun export() : ResponseEntity<ByteArray> {
+        val content = jacksonObjectMapper().writeValueAsString(repository.findAll()).toByteArray(charset("UTF-8"))
+        return ResponseEntity.ok()
+            .header("Content-Disposition", "attachment; filename=Call2Export_${SimpleDateFormat("yyyyMMdd").format(Date())}.json")
+            .contentLength(content.size.toLong())
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(content)
+    }
+
+//    fun import(request: HttpServletRequest, response: HttpServletResponse) : ResponseEntity<ByteArray> {
+//
+//    }
 
 }

@@ -1,6 +1,8 @@
 package xyz.n8ify.call2.controller
 
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import xyz.n8ify.call2.enums.ServiceGroup
 import xyz.n8ify.call2.model.StatusInfo
@@ -40,5 +42,8 @@ class CallController {
     fun check(@RequestBody request: HealthCheckRequest) : BaseResponse<StatusInfo> {
         return callService.checkServiceStatus(request)
     }
+
+    @GetMapping("/export", produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun export() : ResponseEntity<ByteArray> = callService.export()
 
 }

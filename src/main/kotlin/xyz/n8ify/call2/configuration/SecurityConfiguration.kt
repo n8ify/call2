@@ -12,6 +12,7 @@ class SecurityConfiguration : WebSecurityConfigurerAdapter() {
             csrf().disable()
                 .authorizeRequests()/*.antMatchers("/register", "/unregister").authenticated()*/
                 .anyRequest().permitAll()
+            cors().disable()
         }
     }
 }
