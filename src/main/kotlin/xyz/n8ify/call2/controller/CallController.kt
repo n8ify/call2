@@ -33,12 +33,17 @@ class CallController {
         return callService.findAll()
     }
 
+    @GetMapping("/groupedServices")
+    fun groupedServices() : BaseResponse<List<Map<String, Any>>> {
+        return callService.findAllGrouped()
+    }
+
     @GetMapping("/groups")
     fun serviceGroups() : BaseResponse<List<ServiceGroup.Data>> {
         return BaseResponse(true, ServiceGroup.values().map { ServiceGroup.Data(it.id, it.title) })
     }
 
-    @GetMapping("/check")
+    @PostMapping("/check")
     fun check(@RequestBody request: HealthCheckRequest) : BaseResponse<StatusInfo> {
         return callService.checkServiceStatus(request)
     }

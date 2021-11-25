@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.*
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
+import xyz.n8ify.call2.enums.ServiceGroup
 import xyz.n8ify.call2.repository.ServiceRepository
 import xyz.n8ify.call2.model.StatusInfo
 import xyz.n8ify.call2.model.rest.request.HealthCheckRequest
@@ -60,6 +61,21 @@ class CallService {
     } catch (e: Exception) {
         logger.error("Find all failed", e)
         BaseResponse<List<ServiceEntity>>(false, null)
+    }
+
+    fun findAllGrouped() = try {
+        val result = repository.findAll()
+            .groupBy { it.groupId }
+            .map {
+                mapOf(
+                    "serviceType" to ServiceGroup.values().toList().single { g -> it.key == g.id.toString() }.title,
+                    "menus" to it.value
+                )
+            }
+        BaseResponse<List<Map<String, Any>>>(true, result)
+    } catch (e: Exception) {
+        logger.error("Find all failed", e)
+        BaseResponse<List<Map<String, Any>>>(false, null)
     }
 
     fun checkServiceStatus(request: HealthCheckRequest): BaseResponse<StatusInfo> {

@@ -1,9 +1,9 @@
 package xyz.n8ify.call2.model
 
-data class StatusInfo(val ok: Boolean, val healthy: String, val status: String, val responseMs: Long) {
+data class StatusInfo(val ok: Boolean, val healthy: Int, val status: String, val responseMs: Long) {
     companion object {
-        const val Healthy = "Healthy"
-        const val Fine = "Fine"
-        const val Unhealthy = "Unhealthy"
+        const val Healthy = 1
+        const val Fine = 2
+        const val Unhealthy = 3
     }
 }
