@@ -28,7 +28,7 @@ class SecurityConfiguration : WebSecurityConfigurerAdapter() {
         http?.run {
             csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/common/**", "/groupedServices").permitAll()
+                .antMatchers("/common/**", "/groupedServices", "/check").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .formLogin()
