@@ -5,6 +5,9 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.*
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Isolation
+import org.springframework.transaction.annotation.Propagation
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.client.RestTemplate
 import xyz.n8ify.call2.enums.ServiceGroup
 import xyz.n8ify.call2.repository.ServiceRepository
@@ -34,6 +37,7 @@ class CallService {
     @Autowired
     lateinit var entityManager: EntityManager
 
+    @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED, rollbackFor = [Throwable::class])
     fun register(request: RegisterServiceRequest): BaseResponse<ServiceEntity> {
         return try {
             val result = repository.saveAndFlush(request.toServiceEntity())
@@ -45,6 +49,7 @@ class CallService {
         }
     }
 
+    @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED, rollbackFor = [Throwable::class])
     fun unregister(id: String): BaseResponse<Unit> {
         return try {
             repository.deleteById(id)
@@ -56,6 +61,7 @@ class CallService {
         }
     }
 
+    @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED, rollbackFor = [Throwable::class])
     fun updateStatus(id: String): BaseResponse<Unit> {
         return try {
             repository.findById(id).get().let {
@@ -69,6 +75,7 @@ class CallService {
         }
     }
 
+    @Transactional
     fun findAll() = try {
         BaseResponse<List<ServiceEntity>>(true, repository.findAll())
     } catch (e: Exception) {
@@ -76,6 +83,7 @@ class CallService {
         BaseResponse<List<ServiceEntity>>(false, null)
     }
 
+    @Transactional
     fun findAllGrouped() = try {
         val result = repository.findByIsEnableTrue()
             .groupBy { it.groupId }
@@ -91,6 +99,7 @@ class CallService {
         BaseResponse<List<Map<String, Any>>>(false, null)
     }
 
+    @Transactional
     fun checkServiceStatus(request: HealthCheckRequest): BaseResponse<StatusInfo> {
         return try {
             val start = System.currentTimeMillis()
@@ -117,6 +126,7 @@ class CallService {
         }
     }
 
+    @Transactional
     fun export() : ResponseEntity<ByteArray> {
         val content = jacksonObjectMapper().writeValueAsString(repository.findAll()).toByteArray(charset("UTF-8"))
         return ResponseEntity.ok()
