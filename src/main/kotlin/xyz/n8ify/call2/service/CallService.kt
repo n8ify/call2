@@ -182,7 +182,7 @@ class CallService {
                 }
             }
         } catch (e: Exception) {
-            logger.error("Health checking for ${request.url} failed", e)
+            logger.error("Health checking for ${request.url} failed, $e")
             BaseResponse<StatusInfo>(
                 true, StatusInfo(
                     ok = false,
