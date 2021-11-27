@@ -5,7 +5,7 @@ import org.springframework.boot.runApplication
 import org.springframework.metrics.export.prometheus.EnablePrometheusMetrics
 
 @SpringBootApplication
-@EnablePrometheusMetrics
+//@EnablePrometheusMetrics
 class Call2Application
 
 fun main(args: Array<String>) {

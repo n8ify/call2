@@ -6,17 +6,23 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel="icon" href="logo.ico">
+    <style>
+        .hoverable:hover {
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body class="p-16"
       style="background-image: url('bg_mask.png'), url('bg.jpg'); background-repeat: repeat, no-repeat repeat">
-<div class="container-fluid p-5"  id="app">
+<div class="container-fluid p-5" id="app">
     <div class="row">
         <div class="col-sm-12 col-md-3">
             <div class="card p-1 mb-3">
                 <div class="card-body">
                     <div class="row">
                         <div class="col-sm-6 col-md-12 input-group mb-3">
-                            <input type="text" class="form-control" id="title" v-model="regisForm.title" placeholder="* Title"
+                            <input type="text" class="form-control" id="title" v-model="regisForm.title"
+                                   placeholder="* Title"
                                    aria-label="Title" required aria-describedby="basic-addon1">
                         </div>
 
@@ -32,7 +38,8 @@
                         </div>
 
                         <div class="col-sm-6 col-md-12 input-group mb-3">
-                            <input type="url" class="form-control" id="healthCheckUrl" v-model="regisForm.healthCheckUrl" placeholder="Health Check URL"
+                            <input type="url" class="form-control" id="healthCheckUrl"
+                                   v-model="regisForm.healthCheckUrl" placeholder="Health Check URL"
                                    aria-label="Health Check URL" required
                                    aria-describedby="basic-addon1">
                         </div>
@@ -40,13 +47,16 @@
                         <div class="col-sm-4 col-md-12 input-group mb-3">
                             <select class="form-control" aria-label="Group Id" id="groupId" v-model="regisForm.groupId">
                                 <option selected disabled value="0">Please Select Group...</option>
-                                <option v-for="(group, index) in groups" :key="index" :value="group.id" >{{ group.title }}</option>
+                                <option v-for="(group, index) in groups" :key="index" :value="group.id">{{ group.title
+                                    }}
+                                </option>
                             </select>
                         </div>
 
                         <div class="col-sm-2 col-md-12 input-group mb-3 form-check d-flex justify-content-center align-items-center">
                             <div>
-                                <input class="form-check-input" type="checkbox" id="linkable" v-model="regisForm.isLink" style="zoom: 1.25" checked>
+                                <input class="form-check-input" type="checkbox" id="linkable" v-model="regisForm.isLink"
+                                       style="zoom: 1.25" checked>
                                 <label class="form-check-label" for="linkable">
                                     Linkable?
                                 </label>
@@ -55,16 +65,18 @@
 
                         <div class="col-sm-6 col-md-12 input-group mb-3">
                             <input type="file" class="form-control btn" id="thumbnail" v-model="regisForm.thumbnail"
-                                   placeholder="Thumbnail" aria-label="Thumbnail" aria-describedby="basic-addon1" @change="readFile($event)">
+                                   placeholder="Thumbnail" aria-label="Thumbnail" aria-describedby="basic-addon1"
+                                   @change="readFile($event)">
                         </div>
 
-                        <div class="col-sm-6 col-md-12 input-group mb-3" v-if="thumbnailContent !== null" >
+                        <div class="col-sm-6 col-md-12 input-group mb-3" v-if="thumbnailContent !== null">
                             <img :src="thumbnailContent" class="img img-thumbnail" style="max-width: 200px"/>
                         </div>
 
                         <div class="col-sm-12 col-md-12 input-group">
                             <button class="btn btn-primary btn-lg btn-block" id="submit-registration" @click="register">
-                                <svg style="zoom: 2" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                <svg style="zoom: 2" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                     fill="currentColor"
                                      class="bi bi-plus-circle" viewBox="0 0 16 16">
                                     <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
                                     <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
@@ -100,7 +112,7 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <tr v-if="services.length === 0" >
+                                <tr v-if="services.length === 0">
                                     <td colspan="6" class="my-6">
                                         <div class="m-auto w-25" style="color: lightgrey">
                                             <span class="ml-3">Service is Empty</span>
@@ -109,21 +121,27 @@
                                     </td>
                                 </tr>
                                 <tr v-else v-for="(service, index) in services" :key="index" style="text-align: center">
-                                    <td>{{ service.title }}</td>
-                                    <td>{{ service.description }}</td>
-                                    <td>{{ toGroupName(service) }}</td>
-                                    <td><a :href="service.url" target="_blank">{{service.url}}</a></td>
-                                    <td><a :href="service.healthCheckUrl" target="_blank">{{ service.healthCheckUrl ? service.healthCheckUrl : ''}}</a></td>
-                                    <td><img style="max-width: 150px" v-if="service.thumbnail != null" :src="service.thumbnail" class="img img-thumbnail"/></td>
+                                    <td class="hoverable" @dblclick="edit(service, 'title')"><b>{{ service.title }}</b></td>
+                                    <td class="hoverable" @dblclick="edit(service, 'description')"><span>{{ service.description }}</span></td>
+                                    <td class="hoverable"><span class="text-muted">{{ toGroupName(service) }}</span></td>
+                                    <td class="hoverable" @dblclick="edit(service, 'url')"><a :href="service.url"
+                                                                    target="_blank">{{service.url}}</a></td>
+                                    <td class="hoverable" @dblclick="edit(service, 'healthCheckUrl')"><a :href="service.healthCheckUrl" target="_blank">{{
+                                        service.healthCheckUrl ? service.healthCheckUrl : ''}}</a></td>
+                                    <td><img style="max-width: 150px" v-if="service.thumbnail != null"
+                                             :src="service.thumbnail" class="img img-thumbnail"/></td>
                                     <td>
-                                        <input class="form-check-input" type="checkbox" style="zoom: 1.25" :checked="service.isLink" disabled />
+                                        <input class="form-check-input" type="checkbox" style="zoom: 1.25"
+                                               :checked="service.isLink" disabled/>
                                     </td>
                                     <td>
-                                        <input class="form-check-input" type="checkbox" style="zoom: 1.25" :checked="service.isEnable" @change="updateStatus(service.id)"/>
+                                        <input class="form-check-input" type="checkbox" style="zoom: 1.25"
+                                               :checked="service.isEnable" @change="updateStatus(service.id)"/>
                                     </td>
                                     <td>
                                         <button class="btn btn-danger btn-sm" @click="unregister(service)">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle-fill" viewBox="0 0 16 16">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                 fill="currentColor" class="bi bi-x-circle-fill" viewBox="0 0 16 16">
                                                 <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/>
                                             </svg>
                                         </button>
@@ -140,6 +158,14 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script>
 <script>
+    Vue.component('btn', {
+        template: '<button class="btn btn-primary">{{ mark }}</button>',
+        data: function () {
+            return {
+                mark: 'HI!'
+            }
+        }
+    })
     let app = new Vue({
         el: '#app',
         data: {
@@ -172,7 +198,9 @@
                     alert("Group ID is required")
                     isValid = false
                 }
-                if (!isValid) { return; }
+                if (!isValid) {
+                    return;
+                }
 
                 let body = {
                     title: this.regisForm.title,
@@ -185,7 +213,7 @@
                 }
                 let request = {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
+                    headers: {"Content-Type": "application/json"},
                     body: JSON.stringify(body)
                 }
                 fetch('/register', request)
@@ -223,7 +251,7 @@
                     })
                     .catch(err => console.error(err))
             },
-            readFile: function(event) {
+            readFile: function (event) {
                 new Promise(((resolve, reject) => {
                     let file = event.target.files[0]
                     let reader = new FileReader()
@@ -239,26 +267,60 @@
 
             },
             updateStatus: function (id) {
-                let body = { id: id }
+                let body = {id: id}
                 let request = {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
+                    headers: {"Content-Type": "application/json"},
                     body: JSON.stringify(body)
                 }
                 fetch('/updateStatus', request)
                     .then((response) => response.json())
-                    .then((response) => {})
+                    .then((response) => {
+                    })
             },
-            toGroupName: function(service) {
-                return this.groups.find(function(group){
+            toGroupName: function (service) {
+                return this.groups.find(function (group) {
                     console.log(group.id)
                     console.log(service.groupId)
                     return group.id - service.groupId === 0
                 }).title
+            },
+            edit: function (service, flag) {
+                let newVal = prompt("Enter new value")
+                let update = service;
+                if (newVal) {
+                    switch (flag) {
+                        case 'title' :
+                            update.title = newVal
+                            break
+                        case 'description' :
+                            update.description = newVal
+                            break
+                        case 'url' :
+                            update.url = newVal
+                            break
+                        case 'healthCheckUrl' :
+                            update.healthCheckUrl = newVal
+                            break
+                    }
+                    fetch('/update', {
+                        method: 'POST',
+                        headers: {"Content-Type": "application/json"},
+                        body: JSON.stringify(update)
+                    })
+                        .then((response) => response.json())
+                        .then((response) => {
+                            if (!response.success) {
+                                service = update
+                            }
+                        })
+                    .catch((err) => {
+                        console.log(err)
+                    })
+                }
             }
         },
-        computed: {
-        },
+        computed: {},
         mounted: function () {
             fetch('/services')
                 .then((response) => response.json())
@@ -272,7 +334,7 @@
                 .then((response) => response.json())
                 .then((response) => {
                     if (response.success === true) {
-                        for (let i = 0; i < response.additionalData.length ; i++)  {
+                        for (let i = 0; i < response.additionalData.length; i++) {
                             this.groups.push(response.additionalData[i])
                         }
                     }
