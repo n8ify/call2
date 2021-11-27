@@ -56,6 +56,19 @@ class CallService {
         }
     }
 
+    fun updateStatus(id: String): BaseResponse<Unit> {
+        return try {
+            repository.findById(id).get().let {
+                repository.save(it.copy(isEnable = it.isEnable.not()))
+                logger.info("Update service status Success!", id)
+                BaseResponse(true, null)
+            }
+        } catch (e: Exception) {
+            logger.error("Update service status error for $id", e)
+            BaseResponse(false, null)
+        }
+    }
+
     fun findAll() = try {
         BaseResponse<List<ServiceEntity>>(true, repository.findAll())
     } catch (e: Exception) {
@@ -64,7 +77,7 @@ class CallService {
     }
 
     fun findAllGrouped() = try {
-        val result = repository.findAll()
+        val result = repository.findByIsEnableTrue()
             .groupBy { it.groupId }
             .map {
                 mapOf(

@@ -8,6 +8,7 @@ import xyz.n8ify.call2.enums.ServiceGroup
 import xyz.n8ify.call2.model.StatusInfo
 import xyz.n8ify.call2.model.rest.request.HealthCheckRequest
 import xyz.n8ify.call2.model.rest.request.RegisterServiceRequest
+import xyz.n8ify.call2.model.rest.request.UpdateServiceStatusRequest
 import xyz.n8ify.call2.model.rest.response.BaseResponse
 import xyz.n8ify.call2.repository.entity.ServiceEntity
 import xyz.n8ify.call2.service.CallService
@@ -26,6 +27,11 @@ class CallController {
     @PostMapping("/unregister/{id}")
     fun unregister(@PathVariable id: String) : BaseResponse<Unit> {
         return callService.unregister(id)
+    }
+
+    @PostMapping("/updateStatus")
+    fun unregister(@RequestBody request: UpdateServiceStatusRequest) : BaseResponse<Unit> {
+        return callService.updateStatus(request.id)
     }
 
     @GetMapping("/services")

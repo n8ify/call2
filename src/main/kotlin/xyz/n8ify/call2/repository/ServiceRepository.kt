@@ -5,4 +5,6 @@ import org.springframework.stereotype.Repository
 import xyz.n8ify.call2.repository.entity.ServiceEntity
 
 @Repository
-interface ServiceRepository : JpaRepository<ServiceEntity, String>
+interface ServiceRepository : JpaRepository<ServiceEntity, String> {
+    fun findByIsEnableTrue(): List<ServiceEntity>
+}

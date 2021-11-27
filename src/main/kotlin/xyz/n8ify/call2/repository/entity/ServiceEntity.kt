@@ -15,4 +15,6 @@ data class ServiceEntity(
     val description: String?,
     val url: String,
     @Lob val thumbnail: String?,
-    val isLink: Boolean)
+    val isLink: Boolean,
+    val isEnable: Boolean = true,
+)
