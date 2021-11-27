@@ -14,6 +14,7 @@ data class ServiceEntity(
     val title: String,
     val description: String?,
     val url: String,
+    val healthCheckUrl: String?,
     @Lob val thumbnail: String?,
     val isLink: Boolean,
     val isEnable: Boolean = true,

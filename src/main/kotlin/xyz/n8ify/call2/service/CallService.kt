@@ -14,8 +14,10 @@ import xyz.n8ify.call2.repository.ServiceRepository
 import xyz.n8ify.call2.model.StatusInfo
 import xyz.n8ify.call2.model.rest.request.HealthCheckRequest
 import xyz.n8ify.call2.model.rest.request.RegisterServiceRequest
+import xyz.n8ify.call2.model.rest.request.UpdateServiceRequest
 import xyz.n8ify.call2.model.rest.response.BaseResponse
 import xyz.n8ify.call2.repository.entity.ServiceEntity
+import java.lang.IllegalArgumentException
 import java.net.URL
 import java.text.DateFormat
 import java.text.DecimalFormat
@@ -39,7 +41,11 @@ class CallService {
     @Autowired
     lateinit var entityManager: EntityManager
 
-    @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED, rollbackFor = [Throwable::class])
+    @Transactional(
+        isolation = Isolation.SERIALIZABLE,
+        propagation = Propagation.REQUIRED,
+        rollbackFor = [Throwable::class]
+    )
     fun register(request: RegisterServiceRequest): BaseResponse<ServiceEntity> {
         return try {
             val result = repository.saveAndFlush(request.toServiceEntity())
@@ -51,7 +57,38 @@ class CallService {
         }
     }
 
-    @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED, rollbackFor = [Throwable::class])
+    @Transactional(
+        isolation = Isolation.SERIALIZABLE,
+        propagation = Propagation.REQUIRED,
+        rollbackFor = [Throwable::class]
+    )
+    fun update(request: UpdateServiceRequest): BaseResponse<ServiceEntity> {
+        return try {
+            val update = repository.findById(request.id)
+                .orElseGet { throw IllegalArgumentException("[${request.id}] is not found ") }
+                .run {
+                    copy(
+                        groupId = request.groupId ?: groupId,
+                        title = request.title ?: title,
+                        description = request.description ?: description,
+                        url = request.url ?: url,
+                        healthCheckUrl = request.healthCheckUrl ?: healthCheckUrl,
+                    )
+                }
+            val result = repository.saveAndFlush(update)
+            logger.info("Update Success!", result)
+            BaseResponse(true, result)
+        } catch (e: Exception) {
+            logger.error("Update error", e)
+            BaseResponse(false, null)
+        }
+    }
+
+    @Transactional(
+        isolation = Isolation.SERIALIZABLE,
+        propagation = Propagation.REQUIRED,
+        rollbackFor = [Throwable::class]
+    )
     fun unregister(id: String): BaseResponse<Unit> {
         return try {
             repository.deleteById(id)
@@ -63,7 +100,11 @@ class CallService {
         }
     }
 
-    @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED, rollbackFor = [Throwable::class])
+    @Transactional(
+        isolation = Isolation.SERIALIZABLE,
+        propagation = Propagation.REQUIRED,
+        rollbackFor = [Throwable::class]
+    )
     fun updateStatus(id: String): BaseResponse<Unit> {
         return try {
             repository.findById(id).get().let {
@@ -121,37 +162,46 @@ class CallService {
                         else -> StatusInfo.Status.Unhealthy
                     }
                     val status = "${healthy.desc} : $formattedTimeUsage ms"
-                    BaseResponse<StatusInfo>(true, StatusInfo(
-                        ok = ok,
-                        healthy = healthy.id,
-                        status = status,
-                        responseMs = end
-                    ))
+                    BaseResponse<StatusInfo>(
+                        true, StatusInfo(
+                            ok = ok,
+                            healthy = healthy.id,
+                            status = status,
+                            responseMs = end
+                        )
+                    )
                 } else {
-                    BaseResponse<StatusInfo>(true, StatusInfo(
-                        ok = ok,
-                        healthy =  StatusInfo.Status.Unreachable.id,
-                        status = "Unreachable ($responseCode)",
-                        responseMs = 0
-                    ))
+                    BaseResponse<StatusInfo>(
+                        true, StatusInfo(
+                            ok = ok,
+                            healthy = StatusInfo.Status.Unreachable.id,
+                            status = "Unreachable ($responseCode)",
+                            responseMs = 0
+                        )
+                    )
                 }
             }
         } catch (e: Exception) {
             logger.error("Health checking for ${request.url} failed", e)
-            BaseResponse<StatusInfo>(true, StatusInfo(
-                ok = false,
-                healthy =  StatusInfo.Status.Unreachable.id,
-                status = "Unreachable",
-                responseMs = 0
-            ))
+            BaseResponse<StatusInfo>(
+                true, StatusInfo(
+                    ok = false,
+                    healthy = StatusInfo.Status.Unreachable.id,
+                    status = "Unreachable",
+                    responseMs = 0
+                )
+            )
         }
     }
 
     @Transactional
-    fun export() : ResponseEntity<ByteArray> {
+    fun export(): ResponseEntity<ByteArray> {
         val content = jacksonObjectMapper().writeValueAsString(repository.findAll()).toByteArray(charset("UTF-8"))
         return ResponseEntity.ok()
-            .header("Content-Disposition", "attachment; filename=Call2Export_${SimpleDateFormat("yyyyMMdd").format(Date())}.json")
+            .header(
+                "Content-Disposition",
+                "attachment; filename=Call2Export_${SimpleDateFormat("yyyyMMdd").format(Date())}.json"
+            )
             .contentLength(content.size.toLong())
             .contentType(MediaType.APPLICATION_JSON)
             .body(content)
