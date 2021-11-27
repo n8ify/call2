@@ -151,7 +151,7 @@ class CallService {
                 requestMethod = "HEAD"
                 connectTimeout = 5000
                 readTimeout = 5000
-                val ok = responseCode in 200..299
+                val ok = responseCode in 200..499
                 if (ok) {
                     val end = System.currentTimeMillis() - start
                     val formattedTimeUsage = DecimalFormat("#.00").format(end)
