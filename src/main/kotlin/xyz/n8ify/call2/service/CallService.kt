@@ -16,11 +16,13 @@ import xyz.n8ify.call2.model.rest.request.HealthCheckRequest
 import xyz.n8ify.call2.model.rest.request.RegisterServiceRequest
 import xyz.n8ify.call2.model.rest.response.BaseResponse
 import xyz.n8ify.call2.repository.entity.ServiceEntity
+import java.net.URL
 import java.text.DateFormat
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.util.*
+import javax.net.ssl.HttpsURLConnection
 import javax.persistence.EntityManager
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
@@ -101,28 +103,47 @@ class CallService {
 
     @Transactional
     fun checkServiceStatus(request: HealthCheckRequest): BaseResponse<StatusInfo> {
-        return try {
-            val start = System.currentTimeMillis()
-            val response = rest.exchange(request.url, HttpMethod.GET, null, String::class.java)
-            val end = System.currentTimeMillis() - start
-            val formattedTimeUsage = DecimalFormat("#.00").format(end)
+        val start = System.currentTimeMillis()
 
-            val ok = response.statusCode == HttpStatus.OK
-            val healthy = when {
-                end < 2000 -> StatusInfo.Healthy
-                end < 3000 -> StatusInfo.Fine
-                else -> StatusInfo.Unhealthy
+        return try {
+            (URL(request.url).openConnection() as HttpsURLConnection).run {
+                requestMethod = "HEAD"
+                connectTimeout = 5000
+                readTimeout = 5000
+                val ok = responseCode in 200..299
+                if (ok) {
+                    val end = System.currentTimeMillis() - start
+                    val formattedTimeUsage = DecimalFormat("#.00").format(end)
+
+                    val healthy = when {
+                        end < 2000 -> StatusInfo.Status.Healthy
+                        end < 3000 -> StatusInfo.Status.Fine
+                        else -> StatusInfo.Status.Unhealthy
+                    }
+                    val status = "${healthy.desc} : $formattedTimeUsage ms"
+                    BaseResponse<StatusInfo>(true, StatusInfo(
+                        ok = ok,
+                        healthy = healthy.id,
+                        status = status,
+                        responseMs = end
+                    ))
+                } else {
+                    BaseResponse<StatusInfo>(true, StatusInfo(
+                        ok = ok,
+                        healthy =  StatusInfo.Status.Unreachable.id,
+                        status = "Unreachable ($responseCode)",
+                        responseMs = 0
+                    ))
+                }
             }
-            val status = "$healthy : $formattedTimeUsage ms"
-            BaseResponse<StatusInfo>(true, StatusInfo(
-                ok = ok,
-                healthy = healthy,
-                status = status,
-                responseMs = end
-            ))
         } catch (e: Exception) {
             logger.error("Health checking for ${request.url} failed", e)
-            BaseResponse<StatusInfo>(false, null)
+            BaseResponse<StatusInfo>(true, StatusInfo(
+                ok = false,
+                healthy =  StatusInfo.Status.Unreachable.id,
+                status = "Unreachable",
+                responseMs = 0
+            ))
         }
     }
 
