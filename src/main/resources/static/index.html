@@ -34,6 +34,12 @@
                          style="cursor: pointer" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-down" viewBox="0 0 16 16" @click="isShowRegisterForm = !isShowRegisterForm">
                         <path fill-rule="evenodd" d="M8 1a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L7.5 13.293V1.5A.5.5 0 0 1 8 1z"/>
                     </svg>
+                    <a href="/logout">
+                        <svg style="zoom: 1.25" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-in-right" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M6 3.5a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-2a.5.5 0 0 0-1 0v2A1.5 1.5 0 0 0 6.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-8A1.5 1.5 0 0 0 5 3.5v2a.5.5 0 0 0 1 0v-2z"/>
+                            <path fill-rule="evenodd" d="M11.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H1.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"/>
+                        </svg>
+                    </a>
                 </div>
             </div>
             <div class="row mt-4" id="register-form-section" v-bind:style="{ 'display': (isShowRegisterForm ? 'inherit' : 'none')}">
@@ -107,7 +113,11 @@
         <div class="card-body">
             <div class="row mb-2">
                 <div class="col-sm-12 d-flex justify-content-end">
-                    <a href="export" target="_blank">Export</a>
+                    <a href="export" target="_blank">Export</a>&nbsp;
+                    <a href="#" id="import" @click="chooseFile">Import</a>
+                    <div style="display: none">
+                        <input type="file" name="file" id="import-file" ref="import_file" @change="submitFile($event)" accept="application/json"/>
+                    </div>
                 </div>
             </div>
             <div class="row">
@@ -335,6 +345,20 @@
                             console.log(err)
                         })
                 }
+            },
+            chooseFile: function () { this.$refs.import_file.click() },
+            submitFile: function(e) {
+                console.log(e)
+                const fd = new FormData()
+                fd.append('file', e.target.files[0], e.target.files[0].name)
+                fetch('/import', {
+                    method: 'post',
+                    body: fd
+                }).then((response) => response.json()).then((response) => {
+                    if (response.success) {
+                        window.location.reload()
+                    }
+                }).catch((err) => console.log(err))
             }
         },
         computed: {},

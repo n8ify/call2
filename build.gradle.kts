@@ -27,8 +27,6 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity5")
     implementation("org.springframework.metrics:spring-metrics:latest.release")
-    implementation("io.prometheus:simpleclient_common:latest.release")
-    runtimeOnly("io.micrometer:micrometer-registry-prometheus")
     runtimeOnly("org.postgresql:postgresql")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")

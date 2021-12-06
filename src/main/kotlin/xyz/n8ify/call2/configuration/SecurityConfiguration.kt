@@ -28,13 +28,15 @@ class SecurityConfiguration : WebSecurityConfigurerAdapter() {
         http?.run {
             csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/common/**", "/groupedServices", "/check").permitAll()
+                .antMatchers("/login*", "/common/**", "/groupedServices", "/check").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .formLogin()
-//                .successForwardUrl("/")
-//                .usernameParameter("username")
-//                .passwordParameter("password")
+                .loginPage("/login.html")
+                .loginProcessingUrl("/login")
+                .defaultSuccessUrl("/", true)
+                .usernameParameter("username")
+                .passwordParameter("password")
                 .failureHandler { _, response, _ -> response.outputStream.use { it.print("not allowed!") } }
 //                .successHandler { _, response, _ -> response.outputStream.use { it.print("allowed!") } }
             cors().disable()

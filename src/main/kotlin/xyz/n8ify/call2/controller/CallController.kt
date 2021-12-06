@@ -5,6 +5,7 @@ import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.metrics.annotation.Timed
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.multipart.MultipartFile
 import xyz.n8ify.call2.enums.ServiceGroup
 import xyz.n8ify.call2.model.StatusInfo
 import xyz.n8ify.call2.model.rest.request.HealthCheckRequest
@@ -16,7 +17,6 @@ import xyz.n8ify.call2.repository.entity.ServiceEntity
 import xyz.n8ify.call2.service.CallService
 
 @RestController
-@Timed
 class CallController {
 
     @Autowired
@@ -64,5 +64,10 @@ class CallController {
 
     @GetMapping("/export", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun export() : ResponseEntity<ByteArray> = callService.export()
+
+    @PostMapping("/import")
+    fun import(@RequestParam("file") request: MultipartFile) : BaseResponse<Unit> {
+        return callService.import(request)
+    }
 
 }

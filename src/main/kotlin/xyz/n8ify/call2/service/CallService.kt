@@ -1,5 +1,6 @@
 package xyz.n8ify.call2.service
 
+import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -9,6 +10,7 @@ import org.springframework.transaction.annotation.Isolation
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.client.RestTemplate
+import org.springframework.web.multipart.MultipartFile
 import xyz.n8ify.call2.enums.ServiceGroup
 import xyz.n8ify.call2.repository.ServiceRepository
 import xyz.n8ify.call2.model.StatusInfo
@@ -207,8 +209,22 @@ class CallService {
             .body(content)
     }
 
-//    fun import(request: HttpServletRequest, response: HttpServletResponse) : ResponseEntity<ByteArray> {
-//
-//    }
+    fun import(request: MultipartFile) : BaseResponse<Unit> {
+        return try {
+            val content = String(request.bytes, charset("UTF-8"))
+            jacksonObjectMapper().readValue(content, object : TypeReference<List<ServiceEntity>>(){}).run {
+                forEach {
+                    logger.info("Importing record ${it.title} ... ")
+                    repository.save(it)
+                    logger.info("Import record ${it.title} success")
+                }
+            }
+            logger.info("Import file [${request.name}] success")
+            BaseResponse(success = true)
+        } catch (e: Exception) {
+            logger.error("Upload file [${request.name}] failed", e)
+            BaseResponse(success = false)
+        }
+    }
 
 }
