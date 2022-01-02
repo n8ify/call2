@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+	<!--Log Property-->
+	<property name="LOGS_NAME" value="call2" />
+    <property name="LOGS_PATH" value="/mnt/logs/b2p/call2/" />
+    <property name="LOGS_SIZE" value="10MB" />
+    
+    <!--Log Console-->
+    <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <Pattern>
+            	%cyan(%d{yyyy-MM-dd HH:mm:ss.sss}) %highlight(%-5level) [%magenta(%t)] %green(%logger{26}): %msg %n%throwable
+            </Pattern>
+        </layout>
+    </appender>
+  
+  	<!-- Log File -->
+    <appender name="RollingFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOGS_PATH}/${LOGS_NAME}.log</file>
+        <encoder
+            class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <Pattern>%d{yyyy-MM-dd HH:mm:ss.sss} [%thread] %-5level %logger{26}: %msg%n%throwable</Pattern>
+        </encoder>
+        <rollingPolicy
+            class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy"> 
+            <fileNamePattern>${LOGS_PATH}/archived/${LOGS_NAME}-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy
+                class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>${LOGS_SIZE}</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+    </appender>
+    
+    <logger name="com.n8ify.call2" level="DEBUG"/>
+    <logger name="org.reflections" level="WARN"/>
+     
+    <!-- LOG Level -->
+    <root level="info">
+        <appender-ref ref="RollingFile" />
+        <appender-ref ref="Console" />
+    </root>
+ 
+</configuration>
